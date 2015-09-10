@@ -56,7 +56,8 @@ var glo = {
           }]
     },
     addlegend: false,
-    dataProyectos: ""
+    dataProyectos: "",
+    anioProyecto: []
    
 }
 
@@ -264,41 +265,15 @@ var query_Proyecto = L.esri.Tasks.query({
 query_Proyecto.where("1='1'").returnGeometry(false).run(function (error, featureCollection) {
     var data = [];
     $.each(featureCollection.features.reverse(), function (index, value) {
-        data[value.properties.PLA_ID] = value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')';
-        $("#selecProyecto").append('<option value="' + value.properties.PLAN + '">' + value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')' + '</option>')
+        data[value.properties.PLA_ID] = value.properties.PLAN + ' (' + value.properties.ANIO_BASE + ')';
+        glo.anioProyecto[value.properties.PLA_ID] =  value.properties.ANIO_BASE ;
+        $("#selecProyecto").append('<option value="' + value.properties.PLA_ID + '">' + value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')' + '</option>')
     });
+    console.log(data);
     glo.dataProyectos = data;
 });
 
 
-var query_ICEE = L.esri.Tasks.query({
-    url: config.dominio + config.urlHostData + 'MapServer/' + config.ICEE
-});
-
-query_ICEE.where("1='1'").returnGeometry(false).run(function (error, featureCollection) {
-    var data = [];
-    console.log(featureCollection);
-    /*$.each(featureCollection.features.reverse(), function (index, value) {
-        data[value.properties.PLA_ID] = value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')';
-        $("#selecProyecto").append('<option value="' + value.properties.PLAN + '">' + value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')' + '</option>')
-    });
-    glo.dataProyectos = data;*/
-});
-
-
-var query_COS_SITIOS = L.esri.Tasks.query({
-    url: config.dominio + config.urlHostData + 'MapServer/' + config.COS_SITIOS
-});
-
-query_COS_SITIOS.where("1='1'").returnGeometry(false).run(function (error, featureCollection) {
-    var data = [];
-    console.log(featureCollection);
-    /*$.each(featureCollection.features.reverse(), function (index, value) {
-        data[value.properties.PLA_ID] = value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')';
-        $("#selecProyecto").append('<option value="' + value.properties.PLAN + '">' + value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')' + '</option>')
-    });
-    glo.dataProyectos = data;*/
-});
 
 
 

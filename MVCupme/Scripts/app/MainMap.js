@@ -19,7 +19,7 @@ function getParametroFilter() {
     VerLegend();
 }
 
-$("#selecMineral").change(function () {
+/*$("#selecMineral").change(function () {
     getUniMate($("#selecMineral").val());
     var filteredDemanda = turf.filter(glo.Arraycentroid, 'MINERAL', $("#selecMineral").val());
     resetMapa();
@@ -38,7 +38,7 @@ $("#selecEstudio").change(function () {
     glo.Anio = 0;
     CargaOfertaDemanda();
 });
-
+*/
 function calRadio(Arraycentroid) {
     //console.log(glo.DEMANDA_ANIO);
     var gmax = turf.max(glo.extend, Arraycentroid, 'DEMANDA_ANIO_' + glo.DEMANDA_ANIO, 'max');

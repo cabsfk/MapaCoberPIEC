@@ -1,75 +1,22 @@
-﻿
+﻿function getDto(Dpto) {
 
-
-function selctAnio(i) {
-    $(".time").removeClass('btn-default');
-    $(".time").addClass('btn-primary');
-    $("#time" + i).removeClass('btn-primary');
-    $("#time" + i).addClass('btn-default');
-    $("#time" + i).text();
-    glo.DEMANDA_ANIO = i;
-    var filtered = turf.filter(glo.Arraycentroid, 'MINERAL', $("#selecMineral").val());
-    addCentroid(filtered);
-    resetMapa();
-    controlcapas();
-}
-
-function addAnios() {
-    $("#anios").empty();
-    if (glo.Anio != 0) {
-        for (i = 0; i < 10; i++) {
-            if (i == 0) {
-                $("#anios").append('<button id="time' +
-                    i + '" type="button" class="time btn btn-default btn-sm " onClick="selctAnio(' +
-                    i + ');">' + (parseInt(glo.Anio) + i) + '</button>');
-            } else {
-                $("#anios").append('<button id="time' +
-                    i + '" type="button" class="time btn btn-primary btn-sm " onClick="selctAnio(' +
-                    i + ');">' + (parseInt(glo.Anio) + i) + '</button>');
-            }
-        }
-    }
-    
-}
-function getDto(Dpto) {
-    
     var filDpto = turf.filter(glo.jsonDto, 'CODIGO_DEP', Dpto);
     if (filDpto.features.length > 0) {
         return filDpto.features[0].properties.NOMBRE;
     } else {
         return "Revise cod Dept";
     }
-    
+
 }
 
 function getMunDto(Dpto, Mun) {
-    
+
     var filDpto = turf.filter(glo.jsonDto, 'CODIGO_DEP', Dpto);
     var textMun = Dpto + Mun;
     var filMpio = turf.filter(glo.jsonMun, 'MPIO_CCNCT', textMun);
-    return filMpio.features[0].properties.MPIO_CNMBR +', '+ filDpto.features[0].properties.NOMBRE;
+    return filMpio.features[0].properties.MPIO_CNMBR + ', ' + filDpto.features[0].properties.NOMBRE;
 }
 
-function calCentroid(geojson) {
-    var features = [],tmp;
-    var arrayAnio = [];
-    
-    for (i = 0; i < geojson.features.length; i++) {
-        tmp = turf.centroid(geojson.features[i]);
-        tmp.properties = JSON.parse(JSON.stringify(geojson.features[i].properties));
-        arrayAnio.push(geojson.features[i].properties.ANIO_REGISTRO);
-        
-        tmp.properties.Nombre = getMunDto(geojson.features[i].properties.DEMANDANTE_DEPARTAMENTO, geojson.features[i].properties.DEMANDANTE_MUNICIPIO)
-        features.push(tmp);
-    }
-    glo.Anio = arrayAnio.unique();
-   
-   
-    
-    Arraycentroid = turf.featurecollection(features);
-    addAnios();
-    return Arraycentroid;
-}
 
 
 
@@ -87,129 +34,113 @@ function VerLegend() {
     }
 }
 
-function controlcapas() {
-    if (glo.lyrControl != '') {
-        map.removeControl(glo.lyrControl);
-    }
-    var overlayMaps;
-    if (glo.Anio != 0) {
-        overlayMaps = {
-            "Demanda": glo.lyrMate,
-            "Oferta": glo.lyrOferta
-        };
-    } else {
-        overlayMaps = {
-            "Oferta": glo.lyrOferta
-        };
-    }
 
-    glo.lyrControl = L.control.layers({}, overlayMaps);
-    map.addControl(glo.lyrControl);
+$("#selecEscala").change(function () {
+    console.log('Ingreso a escala');
+    CargaProyectosPIEC();
+});
+
+
+function sumCampo(fc, campo) {
+    var sum_Campo = 0;
+    for (var i = 0; i < fc.features.length; i++) {
+        sum_Campo = sum_Campo + fc.features[i].properties[campo];
+
+    }
+    return sum_Campo;
 }
 
-function getUniMate(idUni) {
-    console.log(idUni);
-    console.log(glo.textMineral[idUni]);
-    var str = glo.textMineral[idUni];
-    console.log(str);
-    var n1 = str.indexOf("[");
-    var n2 = str.indexOf("]");
-    
-    if(n1>0){
-        var tmpUniMate = str.split('[');
-        if (n1 > 0) {
-            tmpUniMate = tmpUniMate[1].split(']');
-            glo.UniMate = tmpUniMate[0];
+function AsigData(Gjson, fCICEE, fC_COS_SITIOS, parame) {
+    console.log(Gjson);
+    var tmpICEE, tmpSITIOS, tmpTIPO;
+    for (i = 0; i < Gjson.features.length; i++) {
+        tmpICEE = turf.filter(fCICEE, parame.filEsc, Gjson.features[i].properties[parame.filEsc2]);
+        tmpSITIOS = turf.filter(fC_COS_SITIOS, parame.filEsc3, Gjson.features[i].properties[parame.filEsc2]);
+        tmpTIPO = turf.filter(tmpSITIOS, $("#selecDelta").val(), $("#selecEscenarios").val());
+        if (tmpICEE.features.length > 0) {
+            Gjson.features[i].properties.ICEE_USCAB_TOT = sumCampo(tmpICEE, 'ICEE_USCAB_TOT');
+            Gjson.features[i].properties.ICEE_USRES_TOT = sumCampo(tmpICEE, 'ICEE_USRES_TOT');
+            Gjson.features[i].properties.ICEE_US_TOT = sumCampo(tmpICEE, 'ICEE_US_TOT');
+            Gjson.features[i].properties.ICEE_VIVCAB = sumCampo(tmpICEE, 'ICEE_VIVCAB');
+            Gjson.features[i].properties.ICEE_VIVRES = sumCampo(tmpICEE, 'ICEE_VIVRES');
+            Gjson.features[i].properties.ICEE_VIVTOT = sumCampo(tmpICEE, 'ICEE_VIVTOT');
+            Gjson.features[i].properties.ICEE_VSS_CAB = sumCampo(tmpICEE, 'ICEE_VSS_CAB');
+            Gjson.features[i].properties.ICEE_VSS_RES = sumCampo(tmpICEE, 'ICEE_VSS_RES');
+            Gjson.features[i].properties.ICEE_VSS_TOT = sumCampo(tmpICEE, 'ICEE_VSS_TOT');
+            Gjson.features[i].properties.ICEE_ICEE_TOT = Gjson.features[i].properties.ICEE_US_TOT / Gjson.features[i].properties.ICEE_VIVTOT;
+            Gjson.features[i].properties.ICEE_ICEE_TOT_DEF = 1 - Gjson.features[i].properties.ICEE_ICEE_TOT;
+            if (tmpTIPO.features.length > 0) {
+                Gjson.features[i].properties.COS_INV_TOTAL = sumCampo(tmpTIPO, 'COS_INV_TOTAL');
+                Gjson.features[i].properties.COS_VSS = sumCampo(tmpTIPO, 'COS_VSS');
+            } else {
+                Gjson.features[i].properties.COS_INV_TOTAL = 0;
+                Gjson.features[i].properties.COS_VSS = 0;
+            }
         } else {
-            glo.UniMate = tmpUniMate[1];
+            Gjson.features[i].properties.ICEE_USCAB_TOT = 0;
+            Gjson.features[i].properties.ICEE_USRES_TOT = 0;
+            Gjson.features[i].properties.ICEE_US_TOT = 0;
+            Gjson.features[i].properties.ICEE_VIVCAB = 0;
+            Gjson.features[i].properties.ICEE_VIVRES = 0;
+            Gjson.features[i].properties.ICEE_VIVTOT = 0;
+            Gjson.features[i].properties.ICEE_VSS_CAB = 0;
+            Gjson.features[i].properties.ICEE_VSS_RES = 0;
+            Gjson.features[i].properties.ICEE_VSS_TOT = 0;
+            Gjson.features[i].properties.ICEE_ICEE_TOT = 0;
+            Gjson.features[i].properties.ICEE_ICEE_TOT_DEF = 0;
+            Gjson.features[i].properties.COS_INV_TOTAL = 0;
+            Gjson.features[i].properties.COS_VSS = 0;
         }
-        
-    } else {
-        glo.UniMate = '';
+
     }
-    
+    console.log(Gjson);
 }
 
 
-function CargaOfertaDemanda() {
+function CargaProyectosPIEC() {
     waitingDialog.show();
     
     
-    var queryDemanda = L.esri.Tasks.query({
-        url: config.dominio + config.urlHostDataMA + 'MapServer/' + config.ep_demandas
+    var query_ICEE = L.esri.Tasks.query({
+        url: config.dominio + config.urlHostData + 'MapServer/' + config.ICEE
     });
 
-    var Estudio=$("#selecEstudio").val();
+    var IdProyecto = $("#selecProyecto").val();
+    
 
-    queryDemanda.where("1=1 and FK_ID_ESTUDIO=" + Estudio).returnGeometry(true).run(function (error, fCDemanda) {
-        console.log(fCDemanda);
-        glo.Arraycentroid = calCentroid(fCDemanda);
-        var i = 0;
-        $("#selecMineral").empty();
-        $('#infoDemanda').empty();
-        if (fCDemanda.features.length==0) {
-            $('#infoDemanda').empty().append('No hay datos de DEMANDA');
-        }
+    query_ICEE.where("1=1 and ICEE_AGNO=" + glo.anioProyecto[IdProyecto]).returnGeometry(false).run(function (error, fCICEE) {
 
-        var queryOferta = L.esri.Tasks.query({
-            url: config.dominio + config.urlHostDataMA + 'MapServer/' + config.EP_OFERTA
+        console.log('ingreso');
+        var query_COS_SITIOS = L.esri.Tasks.query({
+            url: config.dominio + config.urlHostData + 'MapServer/' + config.COS_SITIOS
         });
-        queryOferta.where("1='1' and FK_ID_ESTUDIO=" + Estudio).returnGeometry(true).run(function (error, fCOferta) {
-            console.log(fCOferta);
-            $('#infoOferta').empty();
-            if (fCOferta.features.length > 0) {
-                var i = 0, estudio = [];
-                var arrayMi = [];
-                $.each(fCOferta.features, function (index, value) {
-                    estudio.push(value.properties.FK_ID_ESTUDIO);
-                    if (value.properties.LONGITUD < -60) {
-                        fCOferta.features[i].geometry = {
-                            "type": "Point",
-                            "coordinates": [value.properties.LONGITUD, value.properties.LATITUD]
-                        }
-                    } else {
-                        fCOferta.features[i].geometry = {
-                            "type": "Point",
-                            "coordinates": [value.properties.LATITUD, value.properties.LONGITUD]
-                        }
+
+        query_COS_SITIOS.where("1='1' and PLA_ID=1").returnGeometry(false).run(function (error, fC_COS_SITIOS) {
+            console.log(fC_COS_SITIOS);
+            
+            if (error == undefined) {
+                
+                if ($("#selecEscala").val() == "Municipio") {
+                    parame={
+                        filEsc: 'MPIO_CCNCT',
+                        filEsc2: 'MPIO_CCNCT',
+                        filEsc3: 'MPIO_CCNCT'
                     }
-                    arrayMi.push(value.properties.FK_ID_MINERAL);
 
-                    i++;
-                });
-                glo.Materiales = arrayMi.unique();
-                getUniMate(glo.Materiales[0]);
-
-                //console.log("Unidad mate " + glo.UniMate);
-               
-                $("#selecMineral").append('<option value="' + glo.Materiales[0] + '" selected>' + glo.textMineral[glo.Materiales[0]] + '</option>');
-
-                for (i = 1; i < glo.Materiales.length; i++) {
-                    $("#selecMineral").append('<option value="' + glo.Materiales[i] + '" >' + glo.textMineral[glo.Materiales[i]] + '</option>');
+                    AsigData(glo.jsonMun,fCICEE,fC_COS_SITIOS,parame);
+                } else {
+                    parame = {
+                        filEsc: 'DPTO_CCDGO',
+                        filEsc2: 'CODIGO_DEP',
+                        filEsc3: 'COD_DPTO'
+                    }
+                    AsigData(glo.jsonDto, fCICEE, fC_COS_SITIOS, parame);                    
                 }
-                //console.log('Materiales' );
-                //console.log(glo.Materiales[0]);
-                glo.ArrayOfertas = fCOferta;
-                var queryOfertaMun = L.esri.Tasks.query({
-                    url: config.dominio + config.urlHostDataMA + 'MapServer/' + config.EP_OFERTA_MUN
-                });
-                queryOfertaMun.where("1='1' and FK_ID_ESTUDIO=" + Estudio).returnGeometry(false).run(function (error, fCOfertaMun) {
-                    glo.ArrayOfertasMun = fCOfertaMun;
-                    var filterDemanda = turf.filter(glo.Arraycentroid, 'MINERAL', $("#selecMineral").val());
-                    //console.log(filterDemanda);
-                    addCentroid(filterDemanda);
-                    var filterOferta = turf.filter(glo.ArrayOfertas, 'FK_ID_MINERAL', parseInt(glo.Materiales[0]));
-                    addOferta(filterOferta);
-                    VerLegend();
-
-                    waitingDialog.hide();
-                });
-            } else {
-                $('#infoOferta').empty().append('No hay datos de OFERTA');
-                waitingDialog.hide();
-            }
-           
+            } 
+            
+            waitingDialog.hide();
         });
+
     });
 }
 
@@ -220,27 +151,24 @@ function getDeptoSimp() {
         url: config.dominio + config.urlHostData + 'MapServer/' + config.DPTO_GEN
     });
 
-    queryDeptSimpli.fields(['CODIGO_DEP', 'NOMBRE'])
-           .orderBy(['CODIGO_DEP']);
+    queryDeptSimpli
+        .fields(['CODIGO_DEP', 'NOMBRE'])
+        .orderBy(['CODIGO_DEP']);
     queryDeptSimpli.where("1=1").run(function (error, geojson) {
         glo.jsonDto = geojson;
-        var queryMunSimpli = L.esri.Tasks.query({
-            url: config.dominio + config.urlHostData + 'MapServer/' + config.MPIO_GEN
-        });
-        
-        queryMunSimpli
-          .returnGeometry(true)
-          .fields(['DPTO_CCDGO', 'MPIO_CCDGO', 'MPIO_CCNCT', 'MPIO_CNMBR'])
-          .orderBy(['MPIO_CCNCT']);
-        queryMunSimpli.where("1=1").run(function (error, geojson) {
+    });
+    var queryMunSimpli = L.esri.Tasks.query({
+        url: config.dominio + config.urlHostData + 'MapServer/' + config.MPIO_GEN
+    });
 
-            glo.jsonMun = geojson;
-            waitingDialog.hide();
-            //CargaOfertaDemanda();
-            
-
-        });
-     });
+    queryMunSimpli
+      .returnGeometry(true)
+      .fields(['DPTO_CCDGO', 'MPIO_CCDGO', 'MPIO_CCNCT', 'MPIO_CNMBR'])
+      .orderBy(['MPIO_CCNCT']);
+    queryMunSimpli.where("1=1").run(function (error, geojson) {
+        glo.jsonMun = geojson;
+        CargaProyectosPIEC();
+    });
 }
 
 
