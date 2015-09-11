@@ -458,3 +458,16 @@ label {
     margin-right: auto 
 
 }
+
+.modal-backdrop.in {
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    background-color: rgba(255,255,255,1);
+}
