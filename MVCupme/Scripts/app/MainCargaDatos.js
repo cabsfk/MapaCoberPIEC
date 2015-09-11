@@ -19,17 +19,21 @@ function VerLegend() {
     glo.addlegend = true;
     legend.addTo(map);
     
-    $('#legendEscenario').empty().text($('#selecEscenarios option:selected' ).text());
+    $('#legendEscenario').empty().text($('#selecEscenarios option:selected').text());
+
+    $('#legendMapeo').empty().text($('#selecVarMapeo option:selected').text());
+    
+    
     
 }
 
-function loadmap(i) {
+function loadmap(i,all) {
     var IdProyecto = $("#selecProyecto").val();
     var Gjson;
     if ($("#selecEscala").val() == "Municipio") {
-        Gjson = AsigData(glo.jsonMun, glo.fCICEE, glo.fC_COS_SITIOS, glo.parameMUN, glo.anioProyecto[IdProyecto]+i);
+        Gjson = AsigData(glo.jsonMun, glo.fCICEE, glo.fC_COS_SITIOS, glo.parameMUN, glo.anioProyecto[IdProyecto]+i,all);
     } else {
-        Gjson = AsigData(glo.jsonDto, glo.fCICEE, glo.fC_COS_SITIOS, glo.parameDpto, glo.anioProyecto[IdProyecto]+i);
+        Gjson = AsigData(glo.jsonDto, glo.fCICEE, glo.fC_COS_SITIOS, glo.parameDpto, glo.anioProyecto[IdProyecto]+i,all);
     }
     addCobertura(Gjson);
 }
@@ -38,8 +42,8 @@ $("#selecProyecto").change(function () {
     CargaProyectosPIEC();
 });
 
-$("#selecEscala,#selecEscenarios,#selecDelta").change(function () {
-    selctAnio(0);
+$("#selecEscala,#selecEscenarios,#selecDelta,#selecVarMapeo").change(function () {
+    loadmap(0, true);
 });
 
 function sumCampo(fc, campo) {
@@ -55,7 +59,13 @@ function selctAnio(i) {
     $("#time" + i).removeClass('btn-primary');
     $("#time" + i).addClass('btn-default');
     $("#time" + i).text();
-    loadmap(i);
+    if (i >= 0) {
+        loadmap(i, false);
+    } else {
+        loadmap(0, true);
+    }
+       
+    
     
 }
 function addAnios() {
@@ -65,8 +75,10 @@ function addAnios() {
     if (glo.anioProyecto[IdProyecto] != 0) {
         for (i = 0; i < glo.etapasProyecto[IdProyecto]; i++) {
             if (i == 0) {
+                $("#anios").append('<button id="time-1" type="button" class="time btn btn-default btn-sm " onClick="selctAnio(' +
+                    -1 + ');">Todos</button>');
                 $("#anios").append('<button id="time' +
-                    i + '" type="button" class="time btn btn-default btn-sm " onClick="selctAnio(' +
+                    i + '" type="button" class="time btn btn-primary btn-sm " onClick="selctAnio(' +
                     i + ');">' + (parseInt(glo.anioProyecto[IdProyecto]) + i) + '</button>');
             } else {
                 $("#anios").append('<button id="time' +
@@ -77,7 +89,7 @@ function addAnios() {
     }
 
 }
-function AsigData(Gjson, fCICEE, fC_COS_SITIOS, parame,anio) {
+function AsigData(Gjson, fCICEE, fC_COS_SITIOS, parame, anio, all) {
     //console.log(Gjson);
     var tmpICEE, tmpSITIOS, tmpTIPO,tmpANIO,tmp;
     
@@ -85,8 +97,13 @@ function AsigData(Gjson, fCICEE, fC_COS_SITIOS, parame,anio) {
         tmpICEE = turf.filter(fCICEE, parame.filEsc, Gjson.features[i].properties[parame.filEsc2]);
         tmpSITIOS = turf.filter(fC_COS_SITIOS, parame.filEsc3, Gjson.features[i].properties[parame.filEsc2]);
         tmpTIPO = turf.filter(tmpSITIOS, $("#selecDelta").val(), $("#selecEscenarios").val());
-        tmpANIO = turf.filter(tmpTIPO, 'VIGENCIA', anio);
-        tmp = tmpANIO;
+        if (all == false) {
+            tmpANIO = turf.filter(tmpTIPO, 'VIGENCIA', anio);
+            tmp = tmpANIO;
+        } else {
+            tmp = tmpTIPO;
+        }
+        
         if (tmpICEE.features.length > 0) {
             Gjson.features[i].properties.ICEE_USCAB_TOT = sumCampo(tmpICEE, 'ICEE_USCAB_TOT');
             Gjson.features[i].properties.ICEE_USRES_TOT = sumCampo(tmpICEE, 'ICEE_USRES_TOT');
@@ -103,7 +120,7 @@ function AsigData(Gjson, fCICEE, fC_COS_SITIOS, parame,anio) {
             if (tmp.features.length > 0) {
                 Gjson.features[i].properties.COS_INV_TOTAL = sumCampo(tmp, 'COS_INV_TOTAL');
                 Gjson.features[i].properties.COS_VSS = sumCampo(tmp, 'COS_VSS');
-                Gjson.features[i].properties.AUMENTO_COBER = ((Gjson.features[i].properties.COS_VSS + Gjson.features[i].properties.ICEE_US_TOT) / Gjson.features[i].properties.ICEE_VIVTOT) - Gjson.features[i].properties.ICEE_ICEE_TOT;
+                Gjson.features[i].properties.AUMENTO_COBER = (((Gjson.features[i].properties.COS_VSS + Gjson.features[i].properties.ICEE_US_TOT) / Gjson.features[i].properties.ICEE_VIVTOT) - Gjson.features[i].properties.ICEE_ICEE_TOT)*100;
 
                 console.log(Gjson.features[i].properties[parame.filEsc2]);
                 console.log(Gjson.features[i].properties.COS_VSS);
@@ -158,7 +175,7 @@ function CargaProyectosPIEC() {
             console.log(glo.fC_COS_SITIOS);
             if (error == undefined) {
                 addAnios();
-                loadmap(0);
+                loadmap(0,true);
             } 
             
             waitingDialog.hide();

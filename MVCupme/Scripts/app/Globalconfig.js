@@ -93,7 +93,8 @@ if (Nombrepagina == "") {
 }
 
 function getColor(d) {
-    return d >= glo.breaks[5] ? '#FC4E2A' :
+    return d >= glo.breaks[6] ? '#A61C0C' :
+            d >= glo.breaks[5] ? '#FC4E2A' :
             d >= glo.breaks[4] ? '#FD8D3C' :
             d >= glo.breaks[3] ? '#FEB24C' :
             d >= glo.breaks[2] ? '#FED976' :
@@ -109,7 +110,7 @@ legend.onAdd = function (map) {
      labels = [];
 
     // loop through our density intervals and generate a label with a colored square for each interval
-     div.innerHTML += '<div ><center><b>Inversion <span id="legendEscenario"></span></b></center>';
+     div.innerHTML += '<div ><center><b><span id="legendMapeo"></span> (<span id="legendEscenario"></span>)</b></center>';
 
      for (var i = 0; i < glo.breaks.length; i++) {
          if (i == 0) {

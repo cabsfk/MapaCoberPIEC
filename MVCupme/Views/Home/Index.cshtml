@@ -15,7 +15,7 @@
 <div class="col-sm-2 col-md-2" id="panel_formulario" style="max-width:350px;min-width:300px;">
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title">Opciones.</h3>
+            <h3 class="panel-title"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Herramientas.</h3>
         </div>
         <div class="panel-body">
             <div>
@@ -64,12 +64,20 @@
                                 <option value="Municipio">Municipio</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label>Variable Mapeo: </label>
+                            <select class="form-control" id="selecVarMapeo">
+                                <option value="COS_INV_TOTAL">Inversion[$]</option>
+                                <option value="AUMENTO_COBER">Aumento Cobertura[%]</option>
+                                <option value="COS_VSS">Viviendas Beneficiadas</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div role="tabpanel" class="tab-pane" id="Busqueda">
                         <br>
                         <form style="text-align: center;">
-                            <h5>Ingrese el nombre del municipio de interes</h5>
+                            <h5>Ingrese el nombre del municipio o departamento de interes</h5>
                             <div class="input-group custom-search-form">
                                 <input type="text" class="form-control" id="city" placeholder="Nombre Municipio">
                                 <span class="input-group-btn">

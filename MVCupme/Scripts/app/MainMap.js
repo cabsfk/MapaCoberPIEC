@@ -2,23 +2,6 @@
 DEMANDA
 ****************/
 
-function getParametroFilter() {
-    legend.removeFrom(map);
-    var filterOferta = turf.filter(glo.ArrayOfertas, 'FK_ID_MINERAL', parseInt($("#selecMineral").val()));
-    $.each(glo.ArrayRestric, function (index, value) {
-        filterOferta = turf.remove(filterOferta, value, 1);
-    });
-    //console.log(filterOferta);
-
- 
-    if (filterOferta.features.length>0) {
-        addOferta(filterOferta);
-    } else {
-        addOferta(glo.pointTemp);
-    }
-    VerLegend();
-}
-
 
 /*************************
 COBERTURA
@@ -66,7 +49,7 @@ function onEachCobertura(feature, layer) {
     var textlabel = '<h6>' + nombre + '</h6>' +
     '<small class="text-muted">Inversion Total: </small>' + numeral(feature.properties.COS_INV_TOTAL).format('$0,0') + '<br>' +
     '<small class="text-muted">Viviendas Beneficiadas: </small>' + numeral(feature.properties.COS_VSS).format('0,0') + '<br>' +
-    '<small class="text-muted">Aumento de Cobertura: </small>' + numeral(feature.properties.AUMENTO_COBER*100).format('0,0.00') + '%<br>' +
+    '<small class="text-muted">Aumento de Cobertura: </small>' + numeral(feature.properties.AUMENTO_COBER).format('0,0.00') + '%<br>' +
     '<small class="text-muted">VSS totales del Mpio: </small>' + numeral(feature.properties.ICEE_VSS_TOT).format('0,0') + '<br>' +
     '<small class="text-muted">Deficit de cobertura base: </small>' + numeral(feature.properties.ICEE_ICEE_TOT_DEF * 100).format('0,0.00') + '%<br>' +
     '<small class="text-muted">ICCE_Base: </small>' + numeral(feature.properties.ICEE_ICEE_TOT * 100).format('0,0.00') + '%<br>' +
@@ -76,12 +59,13 @@ function onEachCobertura(feature, layer) {
     layer.bindLabel( textlabel,{ 'noHide': true });
 }
 function styleCobertura(feature) {
+    var VarMapeo = $('#selecVarMapeo').val();
     return {
         weight: 1.5,
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.8,
-        fillColor: getColor(feature.properties.COS_INV_TOTAL),
+        fillColor: getColor(feature.properties[VarMapeo]),
     };
 };
 function stylePoly(feature) {
@@ -113,15 +97,15 @@ function getIDMunDpt(filterOferta) {
 
 
 function calLeyenda(Gjson) {
-    var removeAggregated = turf.remove(Gjson, 'COS_INV_TOTAL', 0);
-    console.log('removeAggregated');
-    console.log(removeAggregated);
+    var VarMapeo = $('#selecVarMapeo').val();
+    var removeAggregated = turf.remove(Gjson, VarMapeo, 0);
+    
     if (removeAggregated.features.length > 0) {
         //console.log(removeAggregated);
         if (removeAggregated.features.length > 5) {
-            glo.breaks = turf.jenks(removeAggregated, 'COS_INV_TOTAL', 5);
+            glo.breaks = turf.jenks(removeAggregated, VarMapeo, 5);
         } else {
-            glo.breaks = turf.jenks(removeAggregated, 'COS_INV_TOTAL', removeAggregated.features.length - 1);
+            glo.breaks = turf.jenks(removeAggregated, VarMapeo, removeAggregated.features.length - 1);
         }
         glo.breaks = glo.breaks.unique();
         /*console.log(' glo.breaks');
