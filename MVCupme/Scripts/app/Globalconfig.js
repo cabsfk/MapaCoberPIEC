@@ -110,21 +110,32 @@ legend.onAdd = function (map) {
      labels = [];
 
     // loop through our density intervals and generate a label with a colored square for each interval
-     div.innerHTML += '<div ><center><b><span id="legendMapeo"></span> (<span id="legendEscenario"></span>)</b></center>';
-
+     div.innerHTML += '<div ><center><b><span id="legendMapeo"></span></center><center>(<span id="legendEscenario"></span>)</b></center>';
+     var VarMapeo = $('#selecVarMapeo').val();
+     var i = 0, breaksLeyend = [];
+     $.each(glo.breaks, function (index, value) {
+         if (VarMapeo == "COS_INV_TOTAL") {
+             breaksLeyend[i] = numeral(value/1000000).format('$0,0');
+         } else if (VarMapeo == "AUMENTO_COBER") {
+             breaksLeyend[i] = numeral(value).format('0,0.00') + '%';
+         } else if (VarMapeo == "COS_VSS") {
+             breaksLeyend[i] = numeral(value).format('0,0');
+         }
+         i++;
+     });
      for (var i = 0; i < glo.breaks.length; i++) {
          if (i == 0) {
              div.innerHTML +=
              '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i> ' +
-             numeral(glo.breaks[i]).format('0,0') + '&ndash;' + '<br>';
+             breaksLeyend[i] + '&ndash;' + '<br>';
          } else if (i ==(glo.breaks.length - 1)) {
              div.innerHTML +=
-            '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i> ' +  numeral(glo.breaks[i]).format('0,0') + ' +';
+            '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i> ' + breaksLeyend[i] + ' +';
 
          } else {
              div.innerHTML +=
              '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i> ' +
-             numeral(glo.breaks[i]).format('0,0') + (numeral(glo.breaks[i + 1]).format('0,0') ? '&ndash;' + numeral(glo.breaks[i + 1]).format('0,0') + '<br>' : '+');
+             breaksLeyend[i] + '&ndash;' + breaksLeyend[i + 1] + '<br>';
          }
 
      }
@@ -165,16 +176,15 @@ Array.prototype.unique = function (a) {
 $('.carousel').carousel({
     interval: 7000
 });
-
-var OpenMapSurfer_Roads =  L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
-	type: 'map',
-	ext: 'jpg',
-	attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-	subdomains: '1234'
+var OpenMapSurfer_Roads = L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
+    type: 'map',
+    ext: 'jpg',
+    attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: '1234'
 });
 
-var LyrBase = L.esri.basemapLayer('Topographic').addTo(map);;
-var LyrLabels;
+var LyrBase = L.esri.basemapLayer('Imagery').addTo(map);
+var LyrLabels = L.esri.basemapLayer('ImageryLabels').addTo(map);
 
 function setBasemap(basemap) {
     if (map.hasLayer(LyrBase)) {
@@ -186,13 +196,22 @@ function setBasemap(basemap) {
         LyrBase = OpenMapSurfer_Roads;
     }
     map.addLayer(LyrBase);
+    if (map.hasLayer(LyrLabels)) {
+        map.removeLayer(LyrLabels);
+    }
+
+    if (basemap === 'ShadedRelief' || basemap === 'Oceans' || basemap === 'Gray' || basemap === 'DarkGray' || basemap === 'Imagery' || basemap === 'Terrain') {
+        LyrLabels = L.esri.basemapLayer(basemap + 'Labels');
+        map.addLayer(LyrLabels);
+    }
     $(".esri-leaflet-logo").hide();
     $(".leaflet-control-attribution").hide();
-}
+};
 
 $("#BaseESRIStreets, #BaseESRISatellite, #BaseESRITopo, #BaseOSM").click(function () {
     setBasemap($(this).attr('value'));
-})
+});
+
 
 $(".esri-leaflet-logo").hide();
 $(".leaflet-control-attribution").hide();

@@ -14,9 +14,6 @@
 </div>
 <div class="col-sm-2 col-md-2" id="panel_formulario" style="max-width:350px;min-width:300px;">
     <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Herramientas.</h3>
-        </div>
         <div class="panel-body">
             <div>
 
@@ -39,37 +36,37 @@
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="Filtro">
                         <div class="form-group">
-                            <label>Proyecto: </label>
+                            <label>Plan Indicativo de Expansión de Cobertura: </label>
                             <select class="form-control" id="selecProyecto"></select>
                         </div>
                         <div class="form-group">
-                            <label>Escenarios: </label>
-                            <select class="form-control" id="selecEscenarios">
-                                <option value="FAER" selected>FAER</option>     
-                                <option value="FAZNI" >FAZNI</option>
-                                <option value="OR">OPERADOR</option>                                                           
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Delta: </label><br>
+                            <label>Escenarios del Plan: </label><br>
                             <select class="form-control" id="selecDelta">
-                                <option value="TIPO" selected>Sin Delta</option>
-                                <option value="TIPO_DELTA">Con Delta</option>                                
+                                <option value="TIPO" selected>Universalización </option>
+                                <option value="TIPO_DELTA">Recursos disponibles en los Fondos</option>                                
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Escala: </label>
+                            <label>Soluciones: </label>
+                            <select class="form-control" id="selecEscenarios">
+                                <option value="FAER" selected>Intercontable</option>
+                                <option value="FAZNI">No Intercontable</option>
+                                <option value="OR">Tarifa Operador Red</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Departamento/Municipio: </label>
                             <select class="form-control" id="selecEscala">
                                 <option value="Departamento">Departamento</option>
                                 <option value="Municipio">Municipio</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Variable Mapeo: </label>
+                            <label>Variables de consulta: </label>
                             <select class="form-control" id="selecVarMapeo">
-                                <option value="COS_INV_TOTAL">Inversion[$]</option>
+                                <option value="COS_INV_TOTAL">inversión[$ Millones]</option>
                                 <option value="AUMENTO_COBER">Aumento Cobertura[%]</option>
-                                <option value="COS_VSS">Viviendas Beneficiadas</option>
+                                <option value="COS_VSS">Viviendas a beneficiarse</option>
                             </select>
                         </div>
                     </div>

@@ -282,6 +282,7 @@
     <Content Include="images\loading.gif" />
     <Content Include="images\logo UPME.png" />
     <Content Include="images\logo.png" />
+    <Content Include="images\logo20.png" />
     <Content Include="images\portfolio\thumb\en_infraestructura.jpg" />
     <Content Include="images\portfolio\thumb\en_radiacion_solar.jpg" />
     <Content Include="images\portfolio\thumb\hi_infraestructura-petrolera.jpg" />

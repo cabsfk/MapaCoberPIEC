@@ -67,6 +67,7 @@ $("#city").autocomplete({
         .append('<small>' + item.label + '</small>' +
                 '</li>').appendTo(ul);
 };
+
 var BusquedaAdministrativa = function (json) {
 
     var lyrZoom;
@@ -75,8 +76,6 @@ var BusquedaAdministrativa = function (json) {
     } else {
         lyrZoom = turf.filter(glo.jsonDto, 'CODIGO_DEP', json.properties.DPTO_CCDGO);
     }
-
-
 
     LyrMunicipioDpto = L.geoJson(lyrZoom, {
         style: function (feature) {
@@ -88,7 +87,6 @@ var BusquedaAdministrativa = function (json) {
             }
         }
     }).addTo(map).bringToBack();
-    //map.setMaxBounds(LyrMunicipio.getBounds());
     map.fitBounds(LyrMunicipioDpto.getBounds());
 }
 

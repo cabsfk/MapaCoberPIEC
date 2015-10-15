@@ -46,7 +46,7 @@ function onEachCobertura(feature, layer) {
     }
     
   
-    var textlabel = '<h6>' + nombre + '</h6>' +
+    var htmlpopup = '<h6>' + nombre + '</h6>' +
     '<small class="text-muted">Inversion Total: </small>' + numeral(feature.properties.COS_INV_TOTAL).format('$0,0') + '<br>' +
     '<small class="text-muted">Viviendas Beneficiadas: </small>' + numeral(feature.properties.COS_VSS).format('0,0') + '<br>' +
     '<small class="text-muted">Aumento de Cobertura: </small>' + numeral(feature.properties.AUMENTO_COBER).format('0,0.00') + '%<br>' +
@@ -55,8 +55,36 @@ function onEachCobertura(feature, layer) {
     '<small class="text-muted">ICCE_Base: </small>' + numeral(feature.properties.ICEE_ICEE_TOT * 100).format('0,0.00') + '%<br>' +
     '<small class="text-muted">Viviendas año base: </small>' + numeral(feature.properties.ICEE_VIVTOT).format('0,0') + '<br>' +
     '<small class="text-muted">Usuarios año base: </small>' + numeral(feature.properties.ICEE_US_TOT).format('0,0') + '<br>';
-          
-    layer.bindLabel( textlabel,{ 'noHide': true });
+
+
+    layer.bindPopup(htmlpopup);
+    layer.on('popupclose', function (e) {
+       // resetMapa();
+    });
+    layer.on('popupopen', function (e) {
+       // $('[data-toggle="tooltip"]').tooltip();
+
+    });
+    var VarMapeo = $('#selecVarMapeo').val();
+    var Cantidad = 0;
+    if (VarMapeo == "COS_INV_TOTAL") {
+       Cantidad = parseInt(numeral((feature.properties[VarMapeo] / 1000000)).format('0'));
+       Cantidad = numeral(Cantidad).format('$0,0');
+    } else if (VarMapeo == "AUMENTO_COBER") {
+        Cantidad = numeral(feature.properties[VarMapeo]).format('0,0.00') + '%';
+    } else if (VarMapeo == "COS_VSS") {
+        Cantidad = numeral(feature.properties[VarMapeo]).format('0,0') ;
+    }
+    if (feature.properties[VarMapeo] != 0) {
+        var textlabel = '<h6>' + nombre + '</h6>' +
+        '<small class="text-muted">Mapeado por ' + $('#selecVarMapeo option:selected').text() + ' </small>.<br>' +
+         Cantidad + '<br>';
+    } else {
+        var textlabel = '<h6>' + nombre + '</h6>';
+    }
+
+    layer.bindLabel(textlabel,
+        { 'noHide': true });
 }
 function styleCobertura(feature) {
     var VarMapeo = $('#selecVarMapeo').val();
@@ -65,7 +93,7 @@ function styleCobertura(feature) {
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.8,
-        fillColor: getColor(feature.properties[VarMapeo]),
+        fillColor: getColor(feature.properties[VarMapeo])
     };
 };
 function stylePoly(feature) {
@@ -118,11 +146,25 @@ function calLeyenda(Gjson) {
             glo.breaks = [];
             glo.breaks.push(0);
         }
-
+        var VarMapeo = $('#selecVarMapeo').val();
+        var i = 0;
+        $.each(glo.breaks, function (index, value) {
+            if (VarMapeo == "COS_INV_TOTAL") {
+                if (glo.breaks[i] > 1000000) {
+                    glo.breaks[i] = parseInt(numeral((value / 1000000)-1).format('0') + '000000');
+                }else{
+                    glo.breaks[i] = parseInt(numeral(value / 1000000).format('0'));
+                }
+                
+            }
+            i++;
+        });
+        
     } else {
         glo.breaks = [];
         glo.breaks.push(0);
     }
+    console.log(glo.breaks);
 
 }
 
