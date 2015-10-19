@@ -268,10 +268,12 @@ var query_Proyecto = L.esri.Tasks.query({
 query_Proyecto.where("1='1'").returnGeometry(false).run(function (error, featureCollection) {
     var data = [];
     $.each(featureCollection.features.reverse(), function (index, value) {
-        data[value.properties.PLA_ID] = value.properties.PLAN + ' (' + value.properties.ANIO_BASE + ')';
-        glo.anioProyecto[value.properties.PLA_ID] = value.properties.ANIO_BASE;
-        glo.etapasProyecto[value.properties.PLA_ID] = value.properties.PLA_NUMERO_ETAPAS;
-        $("#selecProyecto").append('<option value="' + value.properties.PLA_ID + '">' + value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')' + '</option>')
+        if (value.properties.PLAN.toUpperCase().indexOf("PRUEBA") < 0) {
+            data[value.properties.PLA_ID] = value.properties.PLAN + ' (' + value.properties.ANIO_BASE + ')';
+            glo.anioProyecto[value.properties.PLA_ID] = value.properties.ANIO_BASE;
+            glo.etapasProyecto[value.properties.PLA_ID] = value.properties.PLA_NUMERO_ETAPAS;
+            $("#selecProyecto").append('<option value="' + value.properties.PLA_ID + '">' + value.properties.PLAN + '(' + value.properties.ANIO_BASE + ')' + '</option>');
+        }        
     });
     console.log(data);
     glo.dataProyectos = data;
